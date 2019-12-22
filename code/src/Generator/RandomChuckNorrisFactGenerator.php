@@ -3,37 +3,47 @@
 namespace App\Generator;
 
 use App\Generator\Exception\ContentNotFoundException;
-use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
 use HttpResponseException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
 class RandomChuckNorrisFactGenerator implements RandomGeneratorInterface
 {
-    private $logger;
+    /**
+     * @var LoggerInterface
+     */
+    private LoggerInterface $logger;
 
-    public function __construct(LoggerInterface $logger)
+    /**
+     * @var ClientInterface
+     */
+    private ClientInterface $client;
+
+    public function __construct(LoggerInterface $logger, ClientInterface $client)
     {
         $this->logger = $logger;
+        $this->client = $client;
     }
 
     /**
      * @return string
      * @throws ContentNotFoundException
      * @throws HttpResponseException
+     * @throws GuzzleException
      */
     public function generate(): string
     {
-        $client = new Client();
-        $response = $client->request('GET', 'https://api.chucknorris.io/jokes/random');
+        $response = $this->client->request('GET', 'https://api.chucknorris.io/jokes/random');
 
         if ($response->getStatusCode() === 200) {
             return $this->retrieveContent($response);
-        } else {
-            throw new HttpResponseException(
-                sprintf('Response with status code %d returned', $response->getStatusCode())
-            );
         }
+
+        throw new HttpResponseException(
+            sprintf('Response with status code %d returned', $response->getStatusCode())
+        );
     }
 
     /**
@@ -47,11 +57,11 @@ class RandomChuckNorrisFactGenerator implements RandomGeneratorInterface
         $contentsAsArray = \GuzzleHttp\json_decode($contents, true);
         if (isset($contentsAsArray['value'])) {
             return $contentsAsArray['value'];
-        } else {
-            $message = 'No content could be retrieved from the chuck norris api';
-            $this->logger->critical($message);
-
-            throw new ContentNotFoundException($message);
         }
+
+        $message = 'No content could be retrieved from the chuck norris api';
+        $this->logger->critical($message);
+
+        throw new ContentNotFoundException($message);
     }
 }

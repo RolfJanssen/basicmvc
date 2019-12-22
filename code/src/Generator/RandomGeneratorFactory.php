@@ -3,6 +3,7 @@
 namespace App\Generator;
 
 use App\Generator\Exception\GeneratorNotFoundException;
+use GuzzleHttp\Client;
 use Symfony\Component\HttpKernel\Log\Logger;
 
 class RandomGeneratorFactory
@@ -15,7 +16,8 @@ class RandomGeneratorFactory
         switch($type) {
             case self::CHUCK_NORRIS_GENERATOR;
                 return new RandomChuckNorrisFactGenerator(
-                    new Logger(null, fopen('/var/www/log/dev.log', 'r+'))
+                    new Logger(null, fopen('/var/www/log/dev.log', 'r+')),
+                    new Client()
                 );
             case self::RANDOM_STRING_GENERATOR:
                 return new RandomStringGenerator();
