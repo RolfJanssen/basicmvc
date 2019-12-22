@@ -2,7 +2,7 @@
 
 namespace App\Generator;
 
-use App\Model\Exception\ContentNotFoundException;
+use App\Generator\Exception\ContentNotFoundException;
 use GuzzleHttp\Client;
 use HttpResponseException;
 use Psr\Http\Message\ResponseInterface;

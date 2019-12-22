@@ -2,7 +2,7 @@
 
 namespace App\Generator;
 
-use App\Model\Exception\GeneratorNotFoundException;
+use App\Generator\Exception\GeneratorNotFoundException;
 use Symfony\Component\HttpKernel\Log\Logger;
 
 class RandomGeneratorFactory
@@ -14,13 +14,13 @@ class RandomGeneratorFactory
     {
         switch($type) {
             case self::CHUCK_NORRIS_GENERATOR;
-                return new RandomChuckNorrisFactGenerator(new Logger(null, fopen('/var/www/log/dev.log', 'r+')));
-                break;
+                return new RandomChuckNorrisFactGenerator(
+                    new Logger(null, fopen('/var/www/log/dev.log', 'r+'))
+                );
             case self::RANDOM_STRING_GENERATOR:
                 return new RandomStringGenerator();
-                break;
             default:
-                throw new GeneratorNotFoundException($type);
+                throw new GeneratorNotFoundException(sprintf( 'Generator of type %s not found', $type));
         }
     }
 }
